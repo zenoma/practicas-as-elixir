@@ -1,0 +1,10 @@
+# This is the build configuration for Elixir project (using Docker).
+image: elixir:1.6.6
+
+pipelines:
+  default:
+    - step:
+        script:
+          - mix local.hex --force
+          - mix deps.get
+          - mix test
