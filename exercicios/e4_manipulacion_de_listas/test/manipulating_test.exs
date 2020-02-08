@@ -3,18 +3,18 @@ defmodule ManipulatingTest do
   use ExUnitProperties
   doctest Manipulating
 
-#  property "pódese filtrar calquera lista de enteiros por calquera enteiro" do
-#    check all enteiro <- integer(),
-#              lista <- list_of(integer()) do
-#      assert Manipulating.filter(lista, enteiro) == Enum.filter(lista, fn x -> x <= enteiro end)
-#    end
-#  end
+  property "pódese filtrar calquera lista de enteiros por calquera enteiro" do
+    check all enteiro <- integer(),
+              lista <- list_of(integer()) do
+      assert Manipulating.filter(lista, enteiro) == Enum.filter(lista, fn x -> x <= enteiro end)
+    end
+  end
 
-#  property "pódese dar a volta a calquera lista de elementos" do
-#    check all lista <- list_of(term()) do
-#      assert Manipulating.reverse(lista) == Enum.reverse(lista)
-#    end
-#  end
+  property "pódese dar a volta a calquera lista de elementos" do
+    check all lista <- list_of(term()) do
+      assert Manipulating.reverse(lista) == Enum.reverse(lista)
+    end
+  end
 
 #  property "pódese concatenar calquera lista de listas" do
 #    check all lista <- list_of(list_of(term())), max_run_time: 10000 do
