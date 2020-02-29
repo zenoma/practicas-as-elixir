@@ -16,28 +16,27 @@ defmodule ManipulatingTest do
     end
   end
 
-#  property "pódese concatenar calquera lista de listas" do
-#    check all lista <- list_of(list_of(term())), max_run_time: 10000 do
-#      assert Manipulating.concatenate(lista) == Enum.concat(lista)
-#    end
-#  end
+  property "pódese concatenar calquera lista de listas" do
+    check all lista <- list_of(list_of(term())), max_run_time: 10000 do
+      assert Manipulating.concatenate(lista) == Enum.concat(lista)
+    end
+  end
 
-#  property "pódese aplanar calquera lista de listas de listas" do
-#    check all lista <- nested_list(), max_run_time: 10000 do
-#      assert Manipulating.flatten(lista) == List.flatten(lista)
-#    end
-#  end
-
-#  defp nested_list() do
-#    ExUnitProperties.gen all lista <-
-#                               list_of(
-#                                 one_of([
-#                                   term(),
-#                                   list_of(term()),
-#                                   list_of(list_of(term()))
-#                                 ])
-#                               ) do
-#      lista
-#    end
-#  end
+  property "pódese aplanar calquera lista de listas de listas" do
+    check all lista <- nested_list(), max_run_time: 10000 do
+      assert Manipulating.flatten(lista) == List.flatten(lista)
+    end
+  end
+  defp nested_list() do
+    ExUnitProperties.gen all lista <-
+                                list_of(
+                                  one_of([
+                                    term(),
+                                    list_of(term()),
+                                    list_of(list_of(term()))
+                                  ])
+                                ) do
+      lista
+    end
+  end
 end
