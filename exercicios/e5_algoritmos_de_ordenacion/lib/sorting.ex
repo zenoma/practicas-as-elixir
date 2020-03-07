@@ -23,7 +23,6 @@ end
 
 # FIXME El test no acaba la ejecución
 
-
 def mergesort([h]) do
     [h]
 end
