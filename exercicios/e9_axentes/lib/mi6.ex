@@ -39,8 +39,17 @@ defmodule Mi6 do
         Process.register(pid, :mi6)
     end
 
+    def disolver() do 
+        GenServer.stop(:mi6)
+    end
+
     def recrutar(axente, destino) do 
-        GenServer.cast(:mi6, {:register, %{axente => encript(destino)}})
+        case consultar_estado(axente) do
+            :you_are_here_we_are_not ->
+                GenServer.cast(:mi6, {:register, %{axente => encript(destino)}})
+            _ ->
+            :ok
+        end
     end
 
     def consultar_estado(axente) do 
@@ -48,11 +57,16 @@ defmodule Mi6 do
     end
 
     def asignar_mision(axente, mision) do
-        case mision do 
-            :espiar ->
-                GenServer.cast(:mi6, {:assign_spy, axente})
-            :contrainformar ->  
-                GenServer.cast(:mi6, {:assign_counterinform, axente})
+        case consultar_estado(axente) do
+            :you_are_here_we_are_not ->
+                :ok
+            _ ->
+            case mision do 
+                :espiar ->
+                    GenServer.cast(:mi6, {:assign_spy, axente})
+                :contrainformar ->  
+                    GenServer.cast(:mi6, {:assign_counterinform, axente})
+            end
         end
     end
 
