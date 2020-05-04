@@ -11,18 +11,7 @@ end
 def filter([head|tail], n) when head > n do
     filter(tail,n)
 end
-
-#Not Tail-recursive
-# def reverse([]) do 
-#     []
-# end
-# 
-# def reverse([head | tail]) do
-#     reverse(tail) ++ [head]
-# end
-
-
-#Tail-recursive 
+ 
 def reverse([]) do
     []    
 end
@@ -61,20 +50,17 @@ end
 
 # FIXME 
 
-def flatten ([]) do
+def flatten([]) do
     []
 end
 
-def flatten (list) do
- flatten_aux(list,[])
+def flatten([head | tail]) do
+    concatenate([flatten([head]), flatten([tail])])
 end
 
-defp flatten_aux([], aux) do
-    reverse(aux)
+def flatten(x) do 
+    x
 end
 
-defp flatten_aux([head| tail], aux) do 
-    reverse([concatenate([concatenate(head) | tail]) | aux])
-end
 
 end

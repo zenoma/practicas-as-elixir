@@ -13,7 +13,7 @@ defp qsort_aux([], left, right, pivot) do
 end
 
 defp qsort_aux([head | tail], left, right, pivot) when (pivot >= head) do
-    qsort_aux(tail, left ++ [head], right , pivot)
+    qsort_aux(tail, [head] ++ left, right , pivot)
 end
 
 defp qsort_aux([head | tail], left, right, pivot) when (pivot < head) do
@@ -22,6 +22,11 @@ end
 
 
 # FIXME El test no acaba la ejecución
+
+
+def mergesort([]) do
+    []
+end
 
 def mergesort([h]) do
     [h]
