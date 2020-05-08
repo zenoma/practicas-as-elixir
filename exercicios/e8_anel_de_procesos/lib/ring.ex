@@ -1,34 +1,34 @@
 defmodule Ring do
 
-def start(n, m, msg) do
-    second = spawn_link(Ring, :start_process, [n - 1, self()])
-    send(second, {:msg, msg, m - 1})
-    loop(second)
-    
-end
-
-#Ultimo proceso
-def start_process(0, root) do
-    Process.link(root)
-    loop(root)
-end
-
-#Segundo en adelante
-def start_process(count, root) do
-    next_pid = spawn_link(Ring, :start_process, [count-1, root])
-    loop(next_pid)
-end
-
-
-def loop(next_pid) do
-    receive do
-    {:msg, msg, 0} ->
-        #Process.exit(next_pid, :normal)
-        send(next_pid,{:msg, msg, 0}) #Manda mensajes de más, n mensajes concretamente
-    {:msg, msg, m} -> 
-        send(next_pid, {:msg, msg, m - 1})
-        loop(next_pid) # Reinicio por si quedan más mensajes
+    def start(n, m, msg) do
+        primero = spawn(fn -> process_setup(n - 1) end)
+        Process.register(primero, :first)
+        send(:first, {m - 1, msg})
     end
-end
+
+
+    defp process_setup(0) do
+        loop(Process.whereis(:first))
+    end
+
+    defp process_setup(n) do
+        next_pid = spawn(fn -> process_setup(n - 1) end)
+        loop(next_pid)
+    end
+
+    defp loop(nil), do: :stop
+    defp loop(next_pid) do
+        receive do
+            {0, _msg} ->
+                send(:first, :stop) #Manda mensajes de más, n mensajes concretamente
+                loop(next_pid)
+            {m, msg} -> 
+                IO.puts msg
+                send(next_pid, {m - 1, msg})
+                loop(next_pid) # Reinicio por si quedan más mensajes
+            :stop ->
+                send(next_pid, :stop)
+        end
+    end
 
 end

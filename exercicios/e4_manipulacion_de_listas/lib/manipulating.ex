@@ -20,32 +20,28 @@ def reverse(list) do
     reverse_aux(list,[])
 end
 
-defp reverse_aux([head | tail], new_list) do
-    reverse_aux(tail, [head | new_list])
-end
-
 defp reverse_aux([],new_list) do
     new_list
 end
 
-def concatenate ([]) do
-    []
+defp reverse_aux([head | tail], new_list) do
+    reverse_aux(tail, [head | new_list])
 end
 
-def concatenate (list) do
-    concatenate_aux(list,[])
+def concatenate(l) do 
+    concatenate(l, [])
 end
 
-defp concatenate_aux([], aux) do
-    reverse(aux)
+def concatenate([], new_list) do
+    reverse(new_list)
 end
 
-defp concatenate_aux([[]| tail], aux) do 
-    concatenate_aux(tail, aux)
+def concatenate([[] | tail], new_list) do
+    concatenate(tail, new_list)
 end
 
-defp concatenate_aux([[head | tail] | tail1],aux) do
-    concatenate_aux([ tail | tail1 ], [head | aux])
+def concatenate([[ih | it] |tail], new_list) do
+    concatenate([it | tail], [ih | new_list])
 end
 
 # FIXME 
@@ -55,11 +51,11 @@ def flatten([]) do
 end
 
 def flatten([head | tail]) do
-    concatenate([flatten([head]), flatten([tail])])
+    concatenate([flatten(head), flatten(tail)])
 end
 
 def flatten(x) do 
-    x
+    [x]
 end
 
 
