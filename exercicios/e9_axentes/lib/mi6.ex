@@ -1,4 +1,45 @@
 defmodule Mi6 do
+    @moduledoc"""
+    Módulo Mi6, Simulación de una administración de una colección de agentes especiales
+    """
+
+    #API
+    @doc"""
+    fundar, Construye la base de datos de los agentes especiales
+    """
+    def fundar() do
+        GenServer.start_link(__MODULE__,[], name: :mi6)
+    end
+
+    @doc"""
+    disolver, Elimina toda la colección de agentes especiales
+    """
+    def disolver() do 
+        GenServer.stop(:mi6)
+    end
+
+    @doc"""
+    recrutar, Añade un agente especial con una lista de longitud igual a la longitud del String introducido en "destino"
+    """
+    def recrutar(axente, destino) do 
+        GenServer.cast(:mi6, {:recrutar, axente, destino})
+    end
+
+    @doc"""
+    consultar_estado, Devuelve la lista asociada con el "axente" especial
+    """
+    def consultar_estado(axente) do 
+        GenServer.call(:mi6, {:consultar, axente})
+    end
+
+    @doc"""
+    asignar_mision, Modifica la lista asociada con el "axente" indicado, la "mision" puede ser :espiar o :contrainformar
+    """
+    def asignar_mision(axente, mision) do
+        GenServer.cast(:mi6, {:asignar, axente, mision})
+    end
+
+
 
     @impl true
     def init(db) do 
@@ -36,28 +77,6 @@ defmodule Mi6 do
     defp handle_recrut_aux({:error, :not_found}, axente, destino, db_axentes) do
         {:ok, pid} = start_link(destino)
         {:noreply, Db.write(db_axentes, axente, pid)}
-    end
-
-    #API
-
-    def fundar() do
-        GenServer.start_link(__MODULE__,[], name: :mi6)
-    end
-
-    def disolver() do 
-        GenServer.stop(:mi6)
-    end
-
-    def recrutar(axente, destino) do 
-        GenServer.cast(:mi6, {:recrutar, axente, destino})
-    end
-
-    def consultar_estado(axente) do 
-        GenServer.call(:mi6, {:consultar, axente})
-    end
-
-    def asignar_mision(axente, mision) do
-        GenServer.cast(:mi6, {:asignar, axente, mision})
     end
 
 

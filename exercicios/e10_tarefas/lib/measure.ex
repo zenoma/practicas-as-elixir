@@ -1,49 +1,81 @@
 defmodule Measure do
-    
-    #Enum.to_list(1..10)
-    #Task.async(fun)
-    #Task.await(task)
-    #Measure.run([{Manipulating, :reverse}, {Manipulating, :flatten}, {Sorting, :quicksort}, {Sorting, :mergesort}], 10000)
-    #Measure.run([{Manipulating, :reverse}, {Sorting, :quicksort}, {Manipulating, :reverse}], 10)
+    @moduledoc"""
+    Módulo Measure, Módulo para estudiar tiempos sobre operaciones sobre listas
+    """
 
+    @doc"""
+    run, Dado una lista de funciones, un entero "n" genera una lista de tamaño "n"
+    la cual es aplicada toda la lista de funciones y devuleve un resumen  de los tiempos de dichas operaciones
+    """
     def run(lista_de_funcions, numero_de_elementos) do
-        #Create lenght(lista_de_functions) processes who will initialize a list
-        #When they end, create another lenght(lista_de_functions) processes who will process the previous lists
-        Supervisor.start_link([{Task.Supervisor, name: TaskSupervisor}], strategy: :one_for_one)
-        task_list = create_task(length(lista_de_funcions),[], numero_de_elementos)
-        do_work(task_list, lista_de_funcions, [])
+
+        t1 = :erlang.timestamp()
+        datos_tasks = task_datos(lista_de_funcions, numero_de_elementos, [])
+        datos = await_datos(datos_tasks, [])
+        datos_t = :erlang.timestamp() |> :timer.now_diff(t1)
+        
+        {fun_tasks, names} = task_fun(lista_de_funcions, datos, [], Db.new())
+        res = Task.yield_many(fun_tasks, 10000)
+
+        IO.puts(" --------------------------------------------")
+        IO.puts("| Creación de datos : #{datos_t/1000000}           sec |")
+        print_fun(res, names)
+        IO.puts(" --------------------------------------------")
     end
 
-    def create(n) do 
-        Enum.to_list(1..n)
+    defp task_datos([], _, tasks), do: tasks
+    defp task_datos([h|t], n, tasks) do
+        task = Task.async(fn -> crear_datos(h, n) end)
+        task_datos(t, n, [task|tasks])
     end
 
-    def create_task(0, task_list, _n_elem) do
-        task_list
+    defp await_datos([], results), do: results
+    defp await_datos([task|t], results) do
+        res = Task.await(task, :infinity)
+        await_datos(t, [res|results])
     end
 
-    def create_task(n, task_list, n_elem) do
-        create_task(n-1, task_list ++ [Task.Supervisor.async(TaskSupervisor, fn -> Measure.create(n_elem) end)], n_elem)
+    defp crear_datos({Manipulating, :flatten}, n), do: lista_de_listas(n, [])
+    defp crear_datos(_, n), do: lista_aleatoria(n, [])
+    
+    defp lista_aleatoria(0, acc), do: acc
+    defp lista_aleatoria(n, acc) do
+        x = :rand.uniform(1001) - 1
+        lista_aleatoria(n-1, [x|acc])
+    end
+    
+    defp lista_de_listas(0, acc), do: acc
+    defp lista_de_listas(n, acc) do
+        x = :rand.uniform(1001) - 1
+        lista_de_listas(n-1, [[x]|acc])
+    end
+    
+    defp task_fun([], _datos, tasks, names), do: {tasks, names}
+    defp task_fun([func|t1], [datos|t2], tasks, names) do
+        {module, function} = func
+        name = String.replace_prefix("#{module}:#{function}", "Elixir.", "")
+        task = Task.async(fn -> time_fun(func, [datos]) end)
+        task_fun(t1, t2, [task|tasks], Db.write(names, task, name))
+    end
+    
+    defp time_fun({module, fun}, args) do
+        t1 = :erlang.timestamp()
+        apply(module, fun, args)
+        t2 = :erlang.timestamp()
+        :timer.now_diff(t2, t1)
     end
 
-
-    def do_work([], _, task_list) do
-        task_list
+    defp print_fun([], _names), do: :ok
+    defp print_fun([{task, {:ok, time}}|t], names) do
+        {:ok, name} = Db.read(names, task)
+        IO.puts("| #{name} : #{time/1000000}           sec |")
+        print_fun(t, names)
     end
-
-    def do_work([data_head | data_tail], [{module, func} | func_tail], task_list) do
-        do_work(data_tail, func_tail, task_list ++ [Task.Supervisor.async(TaskSupervisor, module, func, [Task.await(data_head)])])
+    defp print_fun([{task, _}|t], names) do
+        {:ok, name} = Db.read(names, task)
+        Task.shutdown(task, :brutal_kill)
+        IO.puts("| #{name} : interrompida        |")
+        print_fun(t, names)
     end
-
-
-
 
 end
-
-# Supervisor.start_link([
-#     {Task.Supervisor, name: MyApp.TaskSupervisor}
-#   ], strategy: :one_for_one)
-
-
-# Task.Supervisor.start_child(MyApp.TaskSupervisor, fn -> Measure.create(10) end)
-# task = Task.Supervisor.async(MyApp.TaskSupervisor, fn -> Measure.create(10) end)

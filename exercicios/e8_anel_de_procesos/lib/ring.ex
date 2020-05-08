@@ -1,5 +1,12 @@
 defmodule Ring do
-
+    @moduledoc"""
+    Módulo Ring, implementa anillo de procesos linkados que se envían mensajes
+    """
+  
+  
+    @doc"""
+    start, Construye el anillo de "n" procesos, que se envían "m" mensajes que son "msg"
+    """
     def start(n, m, msg) do
         primero = spawn(fn -> process_setup(n - 1) end)
         Process.register(primero, :first)
